@@ -3,7 +3,18 @@ module CarrierWave
   module Workers
 
     class StoreAsset < Struct.new(:klass, :id, :column)
-      @queue = :store_asset
+      class << self
+        attr_accessor :default_queue_name
+        def queue
+          @queue || ::CarrierWave::Workers::StoreAsset.default_queue_name
+        end
+
+        def queue=(name)
+          @queue = name
+        end
+      end
+
+      self.default_queue_name = :store_asset
 
       def self.perform(*args)
         new(*args).perform

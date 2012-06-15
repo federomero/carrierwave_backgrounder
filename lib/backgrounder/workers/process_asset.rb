@@ -3,7 +3,20 @@ module CarrierWave
   module Workers
 
     class ProcessAsset < Struct.new(:klass, :id, :column)
-      @queue = :process_asset
+      class << self
+        attr_accessor :default_queue_name
+
+        def queue
+          @queue || ::CarrierWave::Workers::ProcessAsset.default_queue_name
+        end
+
+        def queue=(name)
+          @queue = name
+        end
+      end
+
+      self.default_queue_name = :process_asset
+
 
       def self.perform(*args)
         new(*args).perform
